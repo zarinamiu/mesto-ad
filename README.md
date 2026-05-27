@@ -1,5 +1,19 @@
-Стартовый набор для выполнения проектной работы Место
+# Mesto
 
-Для запуска приложения необходимо использовать live-server
-![изображение live-server](image.png)
-Live-server является расширением VSCode
+Проект "Место" — интерактивная страница, куда можно добавлять фотографии, удалять их и ставить лайки.
+
+## Ссылка на проект
+
+https://zarinamiu.github.io/mesto-production/
+
+## Технологии
+
+- HTML5, CSS3, JavaScript (ES6+)
+- Vite
+- GitHub Actions
+
+## Запуск проекта
+
+```bash
+npm install
+npm run dev
