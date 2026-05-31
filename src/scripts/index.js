@@ -1,11 +1,3 @@
-/*
-  Файл index.js является точкой входа в наше приложение
-  и только он должен содержать логику инициализации нашего приложения
-  используя при этом импорты из других файлов
-
-  Из index.js не допускается что то экспортировать
-*/
-
 import {
     getUserInfo,
     getCardList,
@@ -18,6 +10,17 @@ import {
 
 import { createCardElement } from "./components/card.js";
 import { openModalWindow, closeModalWindow, setCloseModalWindowEventListeners } from "./components/modal.js";
+import { enableValidation, clearValidation } from "./components/validation.js";
+
+const validationConfig = {
+    formSelector: '.popup__form',
+    inputSelector: '.popup__input',
+    submitButtonSelector: '.popup__button',
+    inactiveButtonClass: 'popup__button_disabled',
+    inputErrorClass: 'popup__input_type_error',
+    errorClass: 'popup__error_visible',
+    patternMismatchMessage: 'Разрешены только латинские и кириллические буквы, знаки дефиса и пробелы'
+};
 
 let currentUserId = null;
 let cardToDeleteElement = null;
@@ -58,11 +61,7 @@ const cardInfoModalUserList = cardInfoModalWindow.querySelector(".popup__list");
 
 const renderLoading = (isLoading, buttonElement, loadingText = "Сохранение...", defaultText = "Сохранить") => {
     if (buttonElement) {
-        if (isLoading) {
-            buttonElement.textContent = loadingText;
-        } else {
-            buttonElement.textContent = defaultText;
-        }
+        buttonElement.textContent = isLoading ? loadingText : defaultText;
     }
 };
 
@@ -204,6 +203,7 @@ const handleCardFormSubmit = (evt) => {
             );
             closeModalWindow(cardFormModalWindow);
             cardForm.reset();
+            clearValidation(cardForm, validationConfig);
         })
         .catch((err) => {
             console.error(`Ошибка при добавлении карточки: ${err}`);
@@ -240,7 +240,7 @@ const handleRemoveCardSubmit = (evt) => {
             closeModalWindow(removeCardModalWindow);
         })
         .catch((err) => {
-            console.error(`Ошибка при удалении карточки с сервера: ${err}`);
+            console.error(`Ошибка при удалении карточки: ${err}`);
         })
         .finally(() => {
             renderLoading(false, submitButton, "Удаление...", "Да");
@@ -255,16 +255,19 @@ removeCardForm.addEventListener("submit", handleRemoveCardSubmit);
 openProfileFormButton.addEventListener("click", () => {
     profileTitleInput.value = profileTitle.textContent;
     profileDescriptionInput.value = profileDescription.textContent;
+    clearValidation(profileForm, validationConfig);
     openModalWindow(profileFormModalWindow);
 });
 
 profileAvatar.addEventListener("click", () => {
     avatarForm.reset();
+    clearValidation(avatarForm, validationConfig);
     openModalWindow(avatarFormModalWindow);
 });
 
 openCardFormButton.addEventListener("click", () => {
     cardForm.reset();
+    clearValidation(cardForm, validationConfig);
     openModalWindow(cardFormModalWindow);
 });
 
@@ -272,6 +275,8 @@ const allPopups = document.querySelectorAll(".popup");
 allPopups.forEach((popup) => {
     setCloseModalWindowEventListeners(popup);
 });
+
+enableValidation(validationConfig);
 
 Promise.all([getCardList(), getUserInfo()])
     .then(([cardsData, userData]) => {
